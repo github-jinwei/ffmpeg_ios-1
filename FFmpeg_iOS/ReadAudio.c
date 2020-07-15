@@ -114,6 +114,7 @@ void ffmpegTestReadAudio(char *path) {
         
         fwrite(dst_data[0], 1, dst_lineSize, outfile);
         av_packet_unref(&pkt);
+        
     }
     
     /// 释放重采样缓冲区
