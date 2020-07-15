@@ -14,6 +14,7 @@
 #include "libavdevice/avdevice.h"
 #include "libavformat/avformat.h"
 #include "libavcodec/avcodec.h"
+#include "libswresample/swresample.h"
 
 void ffmpegTestReadAudio(char *path);
 
