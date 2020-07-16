@@ -99,6 +99,47 @@ void ffmpegTestReadAudio(char *path) {
     // creat file
     // wb+ w = write b = binary + = add
     FILE *outfile = fopen(path, "wb+");
+    
+    // 打开编码器
+    //avcodec_find_encoder(AV_CODEC_ID_AAC);
+    AVCodec *codec = avcodec_find_encoder_by_name("libfdk_aac");
+    
+    // 创建编码器上下文
+    AVCodecContext *codec_ctx = avcodec_alloc_context3(codec);
+    
+    /// 设置数据采样格式
+    codec_ctx -> sample_fmt = AV_SAMPLE_FMT_S16;
+    codec_ctx -> channel_layout = AV_CH_LAYOUT_STEREO;
+    codec_ctx -> sample_rate = 44100;
+    /// 输出码率
+    codec_ctx -> bit_rate = 0;
+    
+    /// aac_lc 128K aac_he 64k aac_hev2 = 32k
+    codec_ctx -> profile = FF_PROFILE_AAC_HE_V2;
+    /// 如果已设置 profile bit_rate 设为 0
+    
+    /// 分配 AVFrame
+    AVFrame *frame = av_frame_alloc();
+    frame -> nb_samples = 256; // 单通道一个音频帧的采样数
+    frame -> format = AV_SAMPLE_FMT_S16; // 每个采样大小
+    frame -> channel_layout = AV_CH_LAYOUT_STEREO; // channel layout
+    av_frame_get_buffer(frame, 0); // 256 * 2 * 16 = 1024Byte;
+    if (!frame || frame -> buf[0]) {
+        return;
+    }
+    
+    AVPacket *encodePacket = av_packet_alloc();
+    if (!encodePacket) {
+        return;
+    }
+    
+    
+    ret = avcodec_open2(codec_ctx, codec, NULL);
+    if (ret < 0) {
+        get_error_text(ret);
+        return;
+    }
+    
     while (( ret = av_read_frame(fmt_ctx, &pkt) == 0) && count++ < 500) {
         printf("pkt size %d", pkt.size);
         
